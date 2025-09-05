@@ -1,1 +1,1 @@
-this is a text file for Git!
+this is a text file for Git!now i write some new words in the second line!
