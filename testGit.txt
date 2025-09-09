@@ -1,5 +1,3 @@
-this is a text file for Git!now i write some new words in the second line!
+this is a testGit file on the branch of dev!
 
-the third line !
-test the new branch of dev!
 
