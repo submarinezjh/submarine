@@ -1,0 +1,22 @@
+git init
+git add .
+git commit -m "提交说明"
+
+//关联 远程仓库地址
+git remote add origin <远程仓库地址>
+git remote add origin git@github.com:submarinezjh/submarine.git//ssh
+git remote set-url origin https://github.com/submarinezjh/submarine.git//https
+
+//查看关联
+git remote -v
+
+//修改 远程仓库地址
+git remote set-url origin https://github.com/username/repo.git
+
+//首次推送/拉取 带参数u
+git push -u origin master
+git pull
+//后续推送/拉取
+git push origin master
+
+//
