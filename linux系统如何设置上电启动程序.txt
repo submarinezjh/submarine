@@ -1,0 +1,99 @@
+
+》linux新安装的软件或自己写的程序，比如vsftp，如何确保每次上电，能够自动执行？
+
+
+《ChatGPT 说：
+
+好问题 👍，这涉及到 Linux 的开机自启动机制。不同发行版和年代有不同方式，大体分成两类：
+
+🔹 1. 老式方式（SysV init，脚本在 /etc/init.d/）
+
+像你刚才看到的 /etc/init.d/vsftpd 就是 SysV init 启动脚本。
+
+如果发行版还在用这种方式，可以用：
+
+sudo update-rc.d vsftpd defaults
+
+
+或
+
+sudo chkconfig vsftpd on
+
+
+这样系统上电 → init → 调用 /etc/init.d/vsftpd start。
+
+🔹 2. 新式方式（systemd）
+
+现在主流 Linux (Ubuntu ≥ 16.04, CentOS 7+, Debian 8+) 都用 systemd 作为初始化系统。
+
+软件包安装时（如 apt install vsftpd），通常会自动创建一个 systemd service 文件，比如：
+
+/lib/systemd/system/vsftpd.service
+
+
+你可以用：
+
+sudo systemctl enable vsftpd   # 开机自启
+sudo systemctl start vsftpd    # 立即启动
+sudo systemctl status vsftpd   # 查看状态
+
+
+这样每次上电都会自动运行。
+
+🔹 3. 自己写的程序
+
+假如你写了一个可执行程序 /usr/local/bin/myprog，想开机自启，可以选择：
+
+方法 A：写 systemd 服务单元
+
+创建 /etc/systemd/system/myprog.service：
+
+[Unit]
+Description=My Program Service
+After=network.target
+
+[Service]
+ExecStart=/usr/local/bin/myprog
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+然后：
+
+sudo systemctl daemon-reload
+sudo systemctl enable myprog
+sudo systemctl start myprog
+
+方法 B：放到 /etc/rc.local
+
+部分系统还支持在 /etc/rc.local 里写启动命令：
+
+/usr/local/bin/myprog &
+
+
+但这种方法较老，systemd 系统可能默认禁用。
+
+方法 C：用户级自启（适合开发）
+
+如果是用户级程序，可以在 ~/.bashrc 或 ~/.profile 加上：
+
+/usr/local/bin/myprog &
+
+
+这样用户一登录就运行，但 不是纯粹的开机自启。
+
+🔹 4. 嵌入式 Linux 特殊情况
+
+在嵌入式 Linux（比如 OpenWrt、Yocto 系统）里：
+
+可能没有 systemd，常用 init 脚本 或 /etc/rc.local。
+
+Yocto 也支持 systemd，但要看构建时启没启。
+
+✅ 总结：
+
+发行版自带服务（如 vsftpd） → systemctl enable vsftpd。
+
+自己写的程序 → 建议写成 systemd service，最通用可靠。
